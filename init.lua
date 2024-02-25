@@ -123,6 +123,7 @@ require('lazy').setup({
     },
   },
 
+  { 'github/copilot.vim'},
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {} },
   {
@@ -341,6 +342,17 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous dia
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+
+
+-- Remap github copilots "accept suggestion"
+vim.keymap.set('i', '<C-Tab>', 'copilot#Accept("\\<CR>")', {
+          expr = true,
+          replace_keycodes = false
+        })
+vim.g.copilot_no_tab_map = true
+
+-- open nvim where i last left off
+vim.api.nvim_create_autocmd('BufRead', { callback = function(opts) vim.api.nvim_create_autocmd('BufWinEnter', { once = true, buffer = opts.buf, callback = function() local ft = vim.bo[opts.buf].filetype local last_known_line = vim.api.nvim_buf_get_mark(opts.buf, '"')[1] if not (ft:match 'commit' and ft:match 'rebase') and last_known_line > 1 and last_known_line <= vim.api.nvim_buf_line_count(opts.buf) then vim.api.nvim_feedkeys([[g`"]], 'nx', false) end end, }) end, })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
