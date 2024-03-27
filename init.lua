@@ -124,6 +124,12 @@ require('lazy').setup({
   },
 
 
+  -- tmux stack
+  -- { 'omerxx/tmux-sessionx' },
+  --{ 'christoomey/vim-tmux-navigator' },
+  --{ 'tmux-plugins/tmux-resurrect' },
+  --{ 'tmux-plugins/tmux-continuum' },
+
   { 'github/copilot.vim' },
 
   {
