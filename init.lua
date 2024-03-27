@@ -88,7 +88,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -123,7 +123,15 @@ require('lazy').setup({
     },
   },
 
-  { 'github/copilot.vim'},
+
+  { 'github/copilot.vim' },
+
+  {
+    'mrcjkb/rustaceanvim',
+    version = '^4', -- Recommended
+    ft = { 'rust' },
+  },
+
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {} },
   {
@@ -239,7 +247,7 @@ require('lazy').setup({
   },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim',  opts = {} },
 
   -- Fuzzy Finder (files, lsp, etc)
   {
@@ -274,8 +282,9 @@ require('lazy').setup({
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
-  -- require 'kickstart.plugins.autoformat',
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.autoformat',
+  require 'kickstart.plugins.debug',
+  require 'custom.keybinds',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
@@ -283,7 +292,7 @@ require('lazy').setup({
   --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {})
 
 -- [[ Setting options ]]
@@ -344,15 +353,25 @@ vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open float
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 
--- Remap github copilots "accept suggestion"
-vim.keymap.set('i', '<C-Tab>', 'copilot#Accept("\\<CR>")', {
-          expr = true,
-          replace_keycodes = false
-        })
-vim.g.copilot_no_tab_map = true
 
 -- open nvim where i last left off
-vim.api.nvim_create_autocmd('BufRead', { callback = function(opts) vim.api.nvim_create_autocmd('BufWinEnter', { once = true, buffer = opts.buf, callback = function() local ft = vim.bo[opts.buf].filetype local last_known_line = vim.api.nvim_buf_get_mark(opts.buf, '"')[1] if not (ft:match 'commit' and ft:match 'rebase') and last_known_line > 1 and last_known_line <= vim.api.nvim_buf_line_count(opts.buf) then vim.api.nvim_feedkeys([[g`"]], 'nx', false) end end, }) end, })
+vim.api.nvim_create_autocmd('BufRead',
+  {
+    callback = function(opts)
+      vim.api.nvim_create_autocmd('BufWinEnter',
+        {
+          once = true,
+          buffer = opts.buf,
+          callback = function()
+            local ft = vim.bo[opts.buf].filetype
+            local last_known_line = vim.api.nvim_buf_get_mark(opts.buf, '"')[1]
+            if not (ft:match 'commit' and ft:match 'rebase') and last_known_line > 1 and last_known_line <= vim.api.nvim_buf_line_count(opts.buf) then
+              vim.api.nvim_feedkeys([[g`"]], 'nx', false)
+            end
+          end,
+        })
+    end,
+  })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -629,6 +648,7 @@ mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
 }
 
+
 mason_lspconfig.setup_handlers {
   function(server_name)
     require('lspconfig')[server_name].setup {
@@ -637,6 +657,9 @@ mason_lspconfig.setup_handlers {
       settings = servers[server_name],
       filetypes = (servers[server_name] or {}).filetypes,
     }
+  end,
+  ["rust_analyzer"] = function()
+    return true
   end,
 }
 
@@ -694,3 +717,23 @@ cmp.setup {
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- Remap github copilots "accept suggestion"
+vim.keymap.set('i', '<C-J>', 'copilot#Accept("\\<CR>")', {
+  expr = true,
+  replace_keycodes = false
+})
+vim.g.copilot_no_tab_map = true
+
+-- rustaceanvim to share keymaps with nvim-lspconfig
+-- vim.g.rustaceanvim = function()
+--   return {
+--     -- other rustacean settings. --
+--     server = {
+--       on_attach = function()
+--         vim.keymap.set("n", "K", function() vim.cmd.RustLsp { "hover", "actions" } end, { buffer = bufnr })
+--         -- other settings. --
+--       end
+--     }
+--   }
+-- end
