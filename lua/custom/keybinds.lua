@@ -5,4 +5,5 @@ return {
 	--vim.api.nvim_set_keymap('', 'j', '<End>e', { noremap = true }),
 	--vim.api.nvim_set_keymap('', 'k', '<End>i', { noremap = true }),
 	--vim.api.nvim_set_keymap('', 'l', '<End>o', { noremap = true }),
+	vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 }
