@@ -731,15 +731,13 @@ vim.keymap.set('i', '<C-J>', 'copilot#Accept("\\<CR>")', {
 })
 vim.g.copilot_no_tab_map = true
 
+
 -- rustaceanvim to share keymaps with nvim-lspconfig
--- vim.g.rustaceanvim = function()
---   return {
---     -- other rustacean settings. --
---     server = {
---       on_attach = function()
---         vim.keymap.set("n", "K", function() vim.cmd.RustLsp { "hover", "actions" } end, { buffer = bufnr })
---         -- other settings. --
---       end
---     }
---   }
--- end
+vim.g.rustaceanvim = function()
+  return {
+    -- other rustacean settings. --
+    server = {
+      on_attach = on_attach,
+    }
+  }
+end
